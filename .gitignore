@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+# Local secrets and operational data
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+data/
+invoices/
+exports/
+uploads/
+credentials.json
+token.json
+client_secret*.json
+*.pem
+*.key
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
