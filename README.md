@@ -1,37 +1,28 @@
 # Farverig Fakturasystem
 
-Dansk webapp til fakturakladder, udstedelse, PDF og fakturaoversigt.
+## Åbn hjemmesiden
+**GitHub Pages:** https://farverig.github.io/Faktura_system/
 
-## Aktuel status
-Kildekoden er lagt i GitHub. **Ikke produktionsklar og ikke offentligt hostet.** Dette er en første fungerende implementering, som skal gennemgås og testes før brug med rigtige kunder.
+Hvis linket ikke virker endnu, skal Pages aktiveres i **Settings → Pages → Build and deployment → Source: GitHub Actions**. Workflowet `.github/workflows/pages.yml` udgiver automatisk de statiske filer ved ændringer på `main`.
 
-**Implementeret:** Login, kladder, fakturalinjer, 0/25 % moms, SQLite, atomisk fakturanummerering, kopiering, firmaindstillinger og PDF-download.
+## Logo
+Upload dit logo til `assets/logo.png`. Se [assets/README.md](assets/README.md). Det vises automatisk på hjemmesiden og på fakturaudskriften.
 
-**Mangler før endelig ibrugtagning:** Google Drive-integration, logo-upload, robust PDF-layout med fuld Unicode, kreditnotaer, backup/restore, adgangssikring og test af hele brugerflowet. Momsfritagelse og fakturakrav skal kontrolleres konkret. Systemet er ikke et bogføringssystem.
+## GitHub Pages-version
+Den statiske version ligger i `index.html`, `styles.css` og `app.js`. Den har:
+- Flot responsiv fakturaoversigt
+- Opret og redigér kladder
+- Fakturalinjer med 0 % eller 25 % moms
+- Fakturanumre og låsning af udstedte fakturaer **på den enkelte enhed**
+- Udskriv / Gem som PDF via browserens udskriftsdialog
+- Indstillinger og eksport/import af JSON-backup
 
-## Lokal start
-Installer Python 3.12. Kør:
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-export APP_PASSWORD='vælg-en-lang-unik-adgangskode'
-export APP_SECRET="$(python -c 'import secrets; print(secrets.token_hex(32))')"
-uvicorn app:app --host 127.0.0.1 --port 8000
-```
-På Windows skal miljøvariabler sættes med PowerShell og venv aktiveres med `.venv\\Scripts\\Activate.ps1`.
+**Vigtigt:** GitHub Pages kan ikke køre Python eller SQLite. Fakturaer og indstillinger gemmes i browserens `localStorage` på den aktuelle enhed. De synkroniseres **ikke** mellem enheder, og de kan forsvinde ved rydning af browserdata. Data er **ikke krypteret** og denne løsning har **ikke login, serverbaseret adgangskontrol eller automatisk Google Drive-upload**. Det er en prototype, ikke et produktionsklart faktura-/bogføringssystem. Brug ikke til rigtige kundeoplysninger uden passende databeskyttelse og sikker serverlagring.
 
-Åbn http://127.0.0.1:8000. Kør tests med `python -m unittest discover -s tests -v`.
+**Fakturanumre:** Sæt korrekt næste fakturanummer under Indstillinger, før du udsteder en faktura. Sekvensen er kun lokal; to browsere kan udstede samme nummer. Dette er ikke egnet til egentlig fakturering på flere enheder.
 
-## VIGTIGT: fakturanummer
-Databasen starter på faktura 1. Hvis seneste udstedte faktura er nr. 131, **skal næste nummer sættes til 132 før første udstedelse**. Stop appen og kør:
-```bash
-python -c "import sqlite3; c=sqlite3.connect('data/invoices.sqlite3'); c.execute('UPDATE sequence SET next_number=132 WHERE id=1'); c.commit(); c.close()"
-```
-Kontrollér først, at 132 faktisk er næste ledige nummer.
+## Tidligere Python-prototype
+`app.py`, `requirements.txt`, `Dockerfile` og `tests/` indeholder en separat backend-prototype. Den kører **ikke** på GitHub Pages og er ikke integreret med den statiske version.
 
-## Hosting
-Dockerfile er inkluderet til deployment på en server med HTTPS, stærke hemmeligheder og **persistent, sikker lagring monteret på /data**. Deploy ikke på en platform med flygtig disk: fakturaer og nummersekvens kan ellers forsvinde. GitHub er kildekodelager, ikke hosting. Hosting kræver separat udbyderkonto og opsætning.
-
-## Sikkerhed
-Repositoryet er offentligt. Commit aldrig fakturaer, kundeoplysninger, databaser, tokens eller adgangskoder. Lav krypterede, verificerede backups. Én adgangskode er ikke tilstrækkelig til alle produktionsscenarier; sæt ikke appen offentligt online uden yderligere sikkerhedsgennemgang.
+## Før produktionsbrug
+Kræver sikker backend, central database med transaktionssikker nummersekvens, login, krypterede backups, korrekt revisionsspor, gennemgang af danske fakturakrav og Google Drive OAuth-integration.
